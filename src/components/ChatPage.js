@@ -12,32 +12,37 @@ const ChatPage = () => {
   const location = useLocation();
   const socketRef = useRef(null);
   const [users, setUsers] = useState([]);
-  const [oldChats, setOldChats] = useState([]);
+  const [oldChats, setOldChats] = useState();
   useEffect(() => {
     const initSocket = async () => {
-      socketRef.current = await init().catch((err) => console.log(err));
+      socketRef.current = await init();
 
-      // SEND JOIN EVENT
-      socketRef.current?.emit(EVENTS.JOIN, {
+      socketRef.current.emit(EVENTS.JOIN, {
         username: location.state?.username,
         roomId,
       });
 
       const joinedListner = (data) => {
-        //
         if (location.state?.username !== data.username) {
-          console.log(data.username, "JOINED");
           setUsers(data.users);
-          console.log(data.users);
-          data.roomChats && setOldChats(data.roomChats);
+          socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
+          socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, ({ oldChats }) => {
+            setOldChats(oldChats);
+            console.log("RECEIVE_OLD_CHATS", oldChats);
+          });
+          console.log(data.roomChats, "OLDCJATS");
         }
       };
 
       socketRef.current.on(EVENTS.JOINED, joinedListner);
     };
+    // SEND JOIN EVENT
     initSocket();
-  }, []);
 
+    return () => {
+      socketRef.current && socketRef.current.off(EVENTS.JOINED);
+    };
+  }, [location.state.username, roomId]);
   return (
     <Box
       display={"flex"}

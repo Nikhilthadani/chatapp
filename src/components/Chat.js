@@ -7,21 +7,23 @@ import { EVENTS } from "../constants";
 const Chat = ({ socketRef, roomId, username, oldChats }) => {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState(oldChats || []);
+  console.log("chats", chats);
   const broadcastListener = (chats) => {
     setChats(chats);
   };
   useEffect(() => {
-    if (socketRef?.current) {
-      socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
-      socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, (data) => {
-        data.oldChats && setChats(data.oldChats);
-      });
-
-      socketRef?.current?.on(EVENTS.BROADCAST_MSG, ({ chats }) => {
+    if (socketRef.current) {
+      socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, (data) =>
+        setChats(data.oldChats)
+      );
+      socketRef.current?.on(EVENTS.BROADCAST_MSG, ({ chats }) => {
         broadcastListener(chats);
       });
     }
-  }, [socketRef.current]);
+    return () => {
+      socketRef?.current.off(EVENTS.RECEIVE_OLD_CHATS);
+    };
+  }, [socketRef?.current, oldChats]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
