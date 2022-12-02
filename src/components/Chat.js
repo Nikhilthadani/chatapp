@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import ChatItem from "./ChatItem";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import { EVENTS } from "../constants";
-const Chat = ({ socketRef, roomId, username, oldChats }) => {
+const Chat = ({ socketRef, roomId, username }) => {
   const [message, setMessage] = useState("");
-  const [chats, setChats] = useState(oldChats || []);
+  const [chats, setChats] = useState([]);
   console.log("chats", chats);
   const broadcastListener = (chats) => {
     setChats(chats);
@@ -21,7 +21,7 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
         setChats(oldChats);
       });
     }
-  }, [socketRef?.current, oldChats]);
+  }, [socketRef?.current]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
           overflowY: "auto",
         }}
       >
-        {chats.map((chat, index) => (
+        {chats?.map((chat, index) => (
           <ChatItem user={chat.username} message={chat.message} key={index} />
         ))}
       </Box>

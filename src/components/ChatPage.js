@@ -12,7 +12,6 @@ const ChatPage = () => {
   const location = useLocation();
   const socketRef = useRef(null);
   const [users, setUsers] = useState([]);
-  const [oldChats, setOldChats] = useState();
   const joinedListner = (data) => {
     setUsers(data.users);
   };
@@ -75,7 +74,6 @@ const ChatPage = () => {
         flex={0.8}
       >
         <Chat
-          oldChats={oldChats}
           username={location.state?.username}
           roomId={roomId}
           socketRef={socketRef}
