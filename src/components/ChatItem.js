@@ -21,7 +21,7 @@ const ChatItem = ({ message, user }) => {
       >
         {user}
       </Typography>
-      <Typography flex={0.7} width={"auto"}>
+      <Typography flex={0.7} width={"auto"} sx={{ wordWrap: "break-word" }}>
         {message}
       </Typography>
     </Box>

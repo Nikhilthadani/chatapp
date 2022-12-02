@@ -32,6 +32,7 @@ const Homepage = () => {
           variant="h3"
           padding={2}
           textAlign={"center"}
+          fontWeight="bold"
         >
           Join Any Chat Room!
         </Typography>
