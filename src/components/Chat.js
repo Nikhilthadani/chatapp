@@ -13,16 +13,14 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
   };
   useEffect(() => {
     if (socketRef.current) {
-      socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, (data) =>
-        setChats(data.oldChats)
-      );
       socketRef.current?.on(EVENTS.BROADCAST_MSG, ({ chats }) => {
         broadcastListener(chats);
       });
+
+      socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, ({ oldChats }) => {
+        setChats(oldChats);
+      });
     }
-    return () => {
-      socketRef?.current.off(EVENTS.RECEIVE_OLD_CHATS);
-    };
   }, [socketRef?.current, oldChats]);
 
   const handleSubmit = (e) => {

@@ -13,6 +13,9 @@ const ChatPage = () => {
   const socketRef = useRef(null);
   const [users, setUsers] = useState([]);
   const [oldChats, setOldChats] = useState();
+  const joinedListner = (data) => {
+    setUsers(data.users);
+  };
   useEffect(() => {
     const initSocket = async () => {
       socketRef.current = await init();
@@ -21,20 +24,9 @@ const ChatPage = () => {
         username: location.state?.username,
         roomId,
       });
-
-      const joinedListner = (data) => {
-        if (location.state?.username !== data.username) {
-          setUsers(data.users);
-          socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
-          socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, ({ oldChats }) => {
-            setOldChats(oldChats);
-            console.log("RECEIVE_OLD_CHATS", oldChats);
-          });
-          console.log(data.roomChats, "OLDCJATS");
-        }
-      };
-
       socketRef.current.on(EVENTS.JOINED, joinedListner);
+
+      socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
     };
     // SEND JOIN EVENT
     initSocket();
