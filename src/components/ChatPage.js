@@ -12,7 +12,10 @@ const ChatPage = () => {
   const location = useLocation();
   const socketRef = useRef(null);
   const [users, setUsers] = useState([]);
-  const [oldChats, setOldChats] = useState([]);
+  const joinedListner = (data) => {
+    console.log(data.username, "JOINED");
+    setUsers(data.users);
+  };
   useEffect(() => {
     const initSocket = async () => {
       socketRef.current = await init().catch((err) => console.log(err));
@@ -22,21 +25,14 @@ const ChatPage = () => {
         username: location.state?.username,
         roomId,
       });
-
-      const joinedListner = (data) => {
-        //
-        if (location.state?.username !== data.username) {
-          console.log(data.username, "JOINED");
-          setUsers(data.users);
-          console.log(data.users);
-          data.roomChats && setOldChats(data.roomChats);
-        }
-      };
-
       socketRef.current.on(EVENTS.JOINED, joinedListner);
+      socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
     };
     initSocket();
-  }, []);
+    return () => {
+      socketRef.current && socketRef.current.off(EVENTS.JOINED);
+    };
+  }, [location.state?.username, roomId]);
 
   return (
     <Box
@@ -78,7 +74,6 @@ const ChatPage = () => {
         flex={0.8}
       >
         <Chat
-          oldChats={oldChats}
           username={location.state?.username}
           roomId={roomId}
           socketRef={socketRef}

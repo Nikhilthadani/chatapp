@@ -1,27 +1,27 @@
-import { IconButton, TextField } from "@mui/material";
+import { Button, Card, IconButton, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import ChatItem from "./ChatItem";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import CopyIcon from "@mui/icons-material/ContentCopy";
 import { EVENTS } from "../constants";
-const Chat = ({ socketRef, roomId, username, oldChats }) => {
+import copy from "copy-to-clipboard";
+const Chat = ({ socketRef, roomId, username }) => {
   const [message, setMessage] = useState("");
-  const [chats, setChats] = useState(oldChats || []);
+  const [chats, setChats] = useState([]);
   const broadcastListener = (chats) => {
     setChats(chats);
   };
   useEffect(() => {
-    if (socketRef?.current) {
-      socketRef.current.emit(EVENTS.CHECK_OLD_CHATS, { roomId });
-      socketRef.current.on(EVENTS.RECEIVE_OLD_CHATS, (data) => {
-        data.oldChats && setChats(data.oldChats);
-      });
-
-      socketRef?.current?.on(EVENTS.BROADCAST_MSG, ({ chats }) => {
+    if (socketRef.current) {
+      socketRef.current?.on(EVENTS.BROADCAST_MSG, ({ chats }) => {
         broadcastListener(chats);
       });
+      socketRef.current?.on(EVENTS.RECEIVE_OLD_CHATS, (data) => {
+        setChats(data.oldChats);
+      });
     }
-  }, [socketRef.current]);
+  }, [socketRef?.current]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,19 +44,46 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
       minWidth="80%"
       width={"90%"}
       bgcolor={"#32374c"}
-      height={"80%"}
+      height={"90%"}
       padding={1}
     >
+      <Card
+        sx={{
+          padding: 1,
+          margin: "8px",
+          display: "flex",
+          justifyContent: "space-between",
+          bgcolor: "pink",
+        }}
+      >
+        <Typography>
+          Room: <b>{roomId}</b>
+        </Typography>
+        <Button
+          onClick={() => copy(roomId)}
+          color="info"
+          padding={1}
+          endIcon={<CopyIcon />}
+        >
+          Copy
+        </Button>
+      </Card>
       <Box
         sx={{
           overflow: "scroll",
-          borderRadius: 2,
+          borderRadius: 1,
           overflowX: "hidden",
           overflowY: "auto",
+          height: "800px",
         }}
       >
-        {chats.map((chat, index) => (
-          <ChatItem user={chat.username} message={chat.message} key={index} />
+        {chats?.map((chat, index) => (
+          <ChatItem
+            user={chat.username}
+            currentUser={username}
+            message={chat.message}
+            key={index}
+          />
         ))}
       </Box>
       <Box marginTop={"auto"} padding={1}>
@@ -67,6 +94,8 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
             width: "100%",
             padding: 1,
             margin: "auto",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
           <TextField
@@ -77,12 +106,12 @@ const Chat = ({ socketRef, roomId, username, oldChats }) => {
             variant="standard"
             type={"text"}
             sx={{
-              height: "60%",
-              width: "100%",
+              height: "80%",
+              width: "75%",
               bgcolor: "white",
               borderRadius: 10,
               outlineWidth: "none",
-              padding: 1,
+              padding: 0.8,
             }}
           />
           <IconButton

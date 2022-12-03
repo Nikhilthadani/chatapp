@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
 
-const ChatItem = ({ message, user }) => {
+const ChatItem = ({ message, user, currentUser }) => {
   return (
     <Box
       padding={1}
@@ -12,6 +12,7 @@ const ChatItem = ({ message, user }) => {
       display={"flex"}
       flexDirection={"column"}
       margin={1.2}
+      marginLeft={currentUser === user ? "auto" : "5px"}
     >
       <Typography
         flex={0.3}
